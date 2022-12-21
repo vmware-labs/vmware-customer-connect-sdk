@@ -4,7 +4,7 @@ name: tests
 on:
   pull_request:
     branches:
-      - master
+      - main
 
 env:
   VMWCC_USER: ${{ secrets.VMWCC_USER }}
