@@ -1,3 +1,6 @@
+// Copyright 2022 VMware, Inc.
+// SPDX-License-Identifier: Apache 2.0
+
 package sdk
 
 import (
@@ -27,18 +30,21 @@ func (c *Client) GetVersionMap(slug, subProductName string) (data map[string]API
 	// Loop through each major version and collect all versions
 	for majorVersion, dlgList := range subProductDetails.DlgListByVersion {
 		var dlgHeader DlgHeader
-			dlgHeader, err = c.GetDlgHeader(dlgList.Code, dlgList.ProductID)
-			if err != nil {
-				return
-			}
+		dlgHeader, err = c.GetDlgHeader(dlgList.Code, dlgList.ProductID)
+		if err != nil {
+			return
+		}
 
-			for _, version := range dlgHeader.Versions {
-				aPIVersions := APIVersions{
+		for _, version := range dlgHeader.Versions {
+			if ( subProductName != "nsx" && subProductName != "nsx_le"  ) || 
+					(subProductName == "nsx_le" && strings.HasSuffix(version.ID, "-LE")) ||
+					(subProductName == "nsx" && !strings.HasSuffix(version.ID, "-LE")) {
+				data[version.Name] = APIVersions{
 					Code:         version.ID,
 					MajorVersion: majorVersion,
-				}
-				data[version.Name] = aPIVersions
+				}	
 			}
+		}
 	}
 
 	return
@@ -53,7 +59,7 @@ func (c *Client) FindVersion(slug, subProduct, version string) (data APIVersions
 
 	var searchVersion string
 	if strings.Contains(version, "*") {
-		searchVersion, err = c.FindVersionFromGlob(slug, subProduct, version, versionMap)
+		searchVersion, err = c.FindVersionFromGlob(version, versionMap)
 		if err != nil {
 			return
 		}
@@ -70,7 +76,7 @@ func (c *Client) FindVersion(slug, subProduct, version string) (data APIVersions
 	return
 }
 
-func (c *Client) FindVersionFromGlob(slug, subProduct, versionGlob string, versionMap map[string]APIVersions) (version string, err error) {
+func (c *Client) FindVersionFromGlob(versionGlob string, versionMap map[string]APIVersions) (version string, err error) {
 	// Ensure only one glob is defined
 	globCount := strings.Count(versionGlob, "*")
 	if globCount == 0 {

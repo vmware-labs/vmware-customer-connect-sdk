@@ -1,9 +1,10 @@
+// Copyright 2022 VMware, Inc.
+// SPDX-License-Identifier: Apache 2.0
+
 package sdk
 
 import (
 	"errors"
-	// "fmt"
-	// "reflect"
 	"regexp"
 	"sort"
 	"strings"
@@ -66,24 +67,7 @@ func (c *Client) GetSubProductsMap(slug string) (data map[string]SubProductDetai
 
 				// Horizon clients don't follow a common pattern for API naming. This block aligns the pattern
 				if strings.HasPrefix(productCode, "cart") {
-					productCode = strings.Replace(productCode, "-", "_", 1)
-					
-					// Remove version numbers at the start of the string only
-					reHorizon := regexp.MustCompile(`([0-9.].*?)_`)
-					found := reHorizon.FindString(productCode)
-					if found != "" {
-						productCode = strings.Replace(productCode, found, "+", 1)
-					}
-					// Handle tarball not following pattern. Replace cart+lin_+tarball to cart+tarball
-					if strings.HasSuffix(productCode, "tarball") {
-						// productCode = strings.Replace(productCode, "lin_+", "", 1)
-						reHorizonTar := regexp.MustCompile(`lin_([0-9]+.*?)_`)
-						productCode = reHorizonTar.ReplaceAllString(productCode, "")
-					} else {
-						// Remove version numbers at the end
-						reHorizonVersion := regexp.MustCompile(`_([0-9.].*)`)
-						productCode = reHorizonVersion.ReplaceAllString(productCode, "")
-					}
+					productCode = ModifyHorizonClientCode(productCode)
 
 				} else {
 					// Check if product code has text after the version section
@@ -98,7 +82,6 @@ func (c *Client) GetSubProductsMap(slug string) (data map[string]SubProductDetai
 						productCode = reEndVersion.ReplaceAllString(productCode, "")
 						productCode = strings.TrimSuffix(strings.TrimSuffix(productCode, "_"), "-")
 					}
-
 				}
 
 				// Special case for Horizon due to inconsistent naming
@@ -121,12 +104,49 @@ func (c *Client) GetSubProductsMap(slug string) (data map[string]SubProductDetai
 				}
 
 				subProductMap[productCode].DlgListByVersion[majorVersion] = dlgList
+
+				if productCode == "nsx" {
+					DuplicateNsxToNsxLe(subProductMap, productCode, productName, majorVersion, dlgList)
+				}
 			}
 		}
 	}
 
 	data = subProductMap
 	return
+}
+
+func ModifyHorizonClientCode(productCode string) (string) {
+	productCode = strings.Replace(productCode, "-", "_", 1)
+					
+	// Remove version numbers at the start of the string only
+	reHorizon := regexp.MustCompile(`([0-9.].*?)_`)
+	found := reHorizon.FindString(productCode)
+	if found != "" {
+		productCode = strings.Replace(productCode, found, "+", 1)
+	}
+	// Handle tarball not following pattern. Replace cart+lin_+tarball to cart+tarball
+	if strings.HasSuffix(productCode, "tarball") {
+		// productCode = strings.Replace(productCode, "lin_+", "", 1)
+		reHorizonTar := regexp.MustCompile(`lin_([0-9]+.*?)_`)
+		productCode = reHorizonTar.ReplaceAllString(productCode, "")
+	} else {
+		// Remove version numbers at the end
+		reHorizonVersion := regexp.MustCompile(`_([0-9.].*)`)
+		productCode = reHorizonVersion.ReplaceAllString(productCode, "")
+	}
+	return productCode
+}
+
+func DuplicateNsxToNsxLe(subProductMap map[string]SubProductDetails, productCode, productName, majorVersion string, dlgList DlgList) {
+	subProductMap[productCode + "_le"] = SubProductDetails{
+		ProductName:      productName + " Limited Edition",
+		ProductCode:      productCode + "_le",
+		DlgListByVersion: make(map[string]DlgList),
+	}
+	dlgList.Name = dlgList.Name + " Limited Edition"
+	dlgList.Code = dlgList.Code + "-LE"
+	subProductMap[productCode + "_le"].DlgListByVersion[majorVersion] = dlgList
 }
 
 

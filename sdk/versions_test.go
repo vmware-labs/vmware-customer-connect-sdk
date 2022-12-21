@@ -1,3 +1,6 @@
+// Copyright 2022 VMware, Inc.
+// SPDX-License-Identifier: Apache 2.0
+
 package sdk
 
 import (
@@ -22,6 +25,24 @@ func TestGetVersionSuccessHorizon(t *testing.T) {
 	assert.Greater(t, len(versions), 1, "Expected response to contain at least 1 item")
 	assert.Contains(t, versions, "2106")
 	assert.Contains(t, versions, "2006")
+}
+
+func TestGetVersionSuccessNsxLe(t *testing.T) {
+	var versions map[string]APIVersions
+	versions, err = basicClient.GetVersionMap("vmware_nsx", "nsx_le")
+	assert.Nil(t, err)
+	assert.Greater(t, len(versions), 1, "Expected response to contain at least 1 item")
+	assert.Contains(t, versions, "4.0.1.1 LE")
+	assert.NotContains(t, versions, "4.0.1.1")
+}
+
+func TestGetVersionSuccessNsx(t *testing.T) {
+	var versions map[string]APIVersions
+	versions, err = basicClient.GetVersionMap("vmware_nsx", "nsx")
+	assert.Nil(t, err)
+	assert.Greater(t, len(versions), 1, "Expected response to contain at least 1 item")
+	assert.Contains(t, versions, "4.0.1.1")
+	assert.NotContains(t, versions, "4.0.1.1 LE")
 }
 
 func TestGetVersionMapInvalidSubProduct(t *testing.T) {
