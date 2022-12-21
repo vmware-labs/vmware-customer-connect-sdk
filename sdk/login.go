@@ -76,7 +76,7 @@ func Login(username, password string, jar *cookiejar.Jar) (client *Client, err e
 
 	if loginNeeded {
 		jar.RemoveAll()
-		err = performLogin(httpClient, username, password)
+		err = performLogin(httpClient, username, password, jar)
 		if err != nil {
 			return
 		}
@@ -111,25 +111,28 @@ func setXsrfToken(client *http.Client) (xsrfToken string, err error) {
 	return
 }
 
-func performLogin(httpClient *http.Client, username, password string) (err error) {
+func performLogin(httpClient *http.Client, username, password string, jar *cookiejar.Jar) (err error) {
 
-	// Initialize cookies
-	initRes, err := httpClient.Get(initURL)
-	if err != nil {
-		return
-	}
-	initRes.Body.Close()
-	if initRes.StatusCode != 200 {
-		err = ErrorConnectionFailure
-		return
-	}
-
-	var authResp *http.Response
 	var buf bytes.Buffer
-
+	
 	// Attempting login 5 times, to allow for empty response issue.
 	for i := 1; i < 5; i++ {
+		// Initialize cookies
+		var initRes *http.Response
+		initRes, err = httpClient.Get(initURL)
+		if err != nil {
+			break
+		}
+		initRes.Body.Close()
+		
+		// Error if connaction cannot be made to login endpoint
+		if initRes.StatusCode != 200 {
+			err = ErrorConnectionFailure
+			break
+		}
+		
 		// Post credentials to get SAML token back
+		var authResp *http.Response
 		authResp, err = httpClient.PostForm(authURL, url.Values{
 			"username": {username},
 			"password": {password},
@@ -138,24 +141,25 @@ func performLogin(httpClient *http.Client, username, password string) (err error
 			break
 		}
 		defer authResp.Body.Close()
-
+		
 		tee := io.TeeReader(authResp.Body, &buf)
-
+		
 		var authBodyBytes []byte
 		authBodyBytes, err = io.ReadAll(tee)
 		str_body := string(authBodyBytes)
-
+		
 		if str_body == "" {
+			jar.RemoveAll()
 			continue
 		}
 
+		// Return auth failure if reposonse is redirect to the login page
 		if authResp.Request.URL.Path == "/login" {
-			// Return auth failure if reposonse is redirect to the login page
 			err = ErrorAuthenticationFailure
 		}
 		break
 	}
-
+	
 	if err != nil {
 		return
 	}
