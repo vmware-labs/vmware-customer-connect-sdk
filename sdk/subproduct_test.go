@@ -1,7 +1,9 @@
+// Copyright 2022 VMware, Inc.
+// SPDX-License-Identifier: Apache 2.0
+
 package sdk
 
 import (
-	// "fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"

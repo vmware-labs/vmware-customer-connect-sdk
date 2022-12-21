@@ -1,3 +1,6 @@
+// Copyright 2022 VMware, Inc.
+// SPDX-License-Identifier: Apache 2.0
+
 package sdk
 
 import (
@@ -57,12 +60,3 @@ func TestSuccessfulConnection(t *testing.T) {
 		t.Errorf("Expected error not to occur, got %q", err)
 	}
 }
-
-// func TestInvalidProxy(t *testing.T) {
-// 	os.Setenv("HTTPS_PROXY", "http://NOT_A_PROXY")
-// 	defer os.Unsetenv("HTTPS_PROXY")
-// 	err := CheckConnectivity()
-// 	if err == nil {
-// 		t.Errorf("Did not generate error when invalid proxy set")
-// 	}
-// }
