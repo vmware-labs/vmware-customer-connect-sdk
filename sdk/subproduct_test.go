@@ -21,30 +21,6 @@ func TestGetSubProduct(t *testing.T) {
 	assert.NotEmpty(t, subProduct.ProductName)
 }
 
-// func TestGetSubProductsSliceAll(t *testing.T) {
-// 	var products map[string]ProductDetails
-// 	products, err = basicClient.GetProductsMap()
-
-// 	var allSubProducts []string
-// 	for product, _ := range products {
-// 		fmt.Println(product)
-// 		var subProductsStr []string
-// 		var subProducts []SubProduct
-// 		subProducts, err = basicClient.GetSubProductsSlice(product)
-// 		for _, subProduct := range subProducts {
-// 			combined_code := fmt.Sprintf("%s>>%s", product, subProduct.ProductCode)
-// 			subProductsStr = append(subProductsStr, subProduct.ProductCode)
-// 			allSubProducts = append(allSubProducts, combined_code)
-
-// 		}
-// 		fmt.Println(subProductsStr)
-// 	}
-// 	fmt.Println(allSubProducts)
-// 	// t.Log(allSubProducts)
-// 	assert.NotNil(t, err)
-	
-// }
-
 func TestGetSubProductsSliceInvalidSlug(t *testing.T) {
 	var subProducts []SubProductDetails
 	subProducts, err = basicClient.GetSubProductsSlice("vsphere")
@@ -57,6 +33,23 @@ func TestGetSubProductsMap(t *testing.T) {
 	subProducts, err = basicClient.GetSubProductsMap("vmware_vsphere")
 	assert.Nil(t, err)
 	assert.Contains(t, subProducts, "vmtools")
+}
+
+func TestGetSubProductsMapHorizon(t *testing.T) {
+	var subProducts map[string]SubProductDetails
+	subProducts, err = basicClient.GetSubProductsMap("vmware_horizon_clients")
+	assert.Nil(t, err)
+	assert.Contains(t, subProducts, "cart+win")
+	assert.Contains(t, subProducts, "cart+andrd_x8632")
+	assert.Contains(t, subProducts, "cart+lin64")
+}
+
+func TestGetSubProductsMapNsxLe(t *testing.T) {
+	var subProducts map[string]SubProductDetails
+	subProducts, err = basicClient.GetSubProductsMap("vmware_nsx")
+	assert.Nil(t, err)
+	assert.Contains(t, subProducts, "nsx")
+	assert.Contains(t, subProducts, "nsx_le")
 }
 
 func TestGetSubProductsMapInvalidSlug(t *testing.T) {
