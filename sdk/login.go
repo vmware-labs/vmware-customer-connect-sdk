@@ -152,7 +152,7 @@ func performLogin(httpClient *http.Client, username, password string, jar *cooki
 			jar.RemoveAll()
 			continue
 		}
-		
+
 		// Return auth failure if reposonse is redirect to the login page
 		if authResp.Request.URL.Path == "/login" {
 			err = ErrorAuthenticationFailure
