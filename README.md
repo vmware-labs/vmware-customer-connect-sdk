@@ -20,7 +20,7 @@ export VMWCC_USER='<user@name>'
 export VMWCC_PASS='<password>'
 ```
 
-## Documentation
+## Testing
 
 Run test with `go test ./...`.
 
