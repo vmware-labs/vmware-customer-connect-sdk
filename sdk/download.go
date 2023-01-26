@@ -49,20 +49,21 @@ func (c *Client) GenerateDownloadPayload(slug, subProduct, version, fileName str
 		return
 	}
 
-	var downloadGroup, productID string
-	downloadGroup, productID, err = c.GetDlgProduct(slug, subProduct, version)
+	var productID string
+	var apiVersions APIVersions
+	productID, apiVersions, err = c.GetDlgProduct(slug, subProduct, version)
 	if err != nil {
 		return
 	}
 
 	var dlgHeader DlgHeader
-	dlgHeader, err = c.GetDlgHeader(downloadGroup, productID)
+	dlgHeader, err = c.GetDlgHeader(apiVersions.Code, productID)
 	if err != nil {
 		return
 	}
 
 	var downloadDetails FoundDownload
-	downloadDetails, err = c.FindDlgDetails(downloadGroup, productID, fileName)
+	downloadDetails, err = c.FindDlgDetails(apiVersions.Code, productID, fileName)
 	if err != nil {
 		return
 	}
@@ -77,7 +78,7 @@ func (c *Client) GenerateDownloadPayload(slug, subProduct, version, fileName str
 			err = ErrorEulaUnaccepted
 			return
 		} else {
-			err = c.AcceptEula(downloadGroup, productID)
+			err = c.AcceptEula(apiVersions.Code, productID)
 			if err != nil {
 				return
 			}
@@ -87,7 +88,7 @@ func (c *Client) GenerateDownloadPayload(slug, subProduct, version, fileName str
 	for _, downloadFile := range downloadDetails.DownloadDetails {
 		downloadPayload := DownloadPayload{
 			Locale:        "en_US",
-			DownloadGroup: downloadGroup,
+			DownloadGroup: apiVersions.Code,
 			ProductId:     productID,
 			Md5checksum:   downloadFile.Md5Checksum,
 			TagId:         dlgHeader.Dlg.TagID,
