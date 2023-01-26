@@ -9,6 +9,10 @@ import (
 	"strings"
 )
 
+const (
+	productsURL = baseURL + "/channel/public/api/v1.0/products/getProductsAtoZ?isPrivate=true"
+)
+
 var ProductDetailMap map[string]ProductDetails
 
 type ProductDetails struct {
@@ -36,7 +40,7 @@ type ProductCategoryList struct {
 
 func (c *Client) GetProductsSlice() (data []MajorProducts, err error) {
 	var res *http.Response
-	res, err = c.HttpClient.Get(baseURL + "/channel/public/api/v1.0/products/getProductsAtoZ?isPrivate=true")
+	res, err = c.HttpClient.Get(productsURL)
 	if err != nil {
 		return
 	}

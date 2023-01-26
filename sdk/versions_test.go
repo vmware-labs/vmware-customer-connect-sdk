@@ -64,6 +64,7 @@ func TestFindVersion(t *testing.T) {
 	foundVersion, err = basicClient.FindVersion("vmware_tools", "vmtools", "11.1.1")
 	assert.Nil(t, err)
 	assert.NotEmpty(t, foundVersion.Code, "Expected response not to be empty")
+	assert.Equal(t, foundVersion.MinorVersion, "11.1.1")
 }
 
 func TestFindVersionInvalidSlug(t *testing.T) {
@@ -85,6 +86,7 @@ func TestFindVersionInvalidSubProduct(t *testing.T) {
 	foundVersion, err = basicClient.FindVersion("vmware_tools", "tools", "11.1.1")
 	assert.ErrorIs(t, err, ErrorInvalidSubProduct)
 	assert.Empty(t, foundVersion.Code, "Expected response to be empty")
+
 }
 
 func TestFindVersionMinorGlob(t *testing.T) {
@@ -92,6 +94,7 @@ func TestFindVersionMinorGlob(t *testing.T) {
 	foundVersion, err = basicClient.FindVersion("vmware_tools", "vmtools", "10.2.*")
 	assert.Nil(t, err)
 	assert.Equal(t, foundVersion.Code, "VMTOOLS1021")
+	assert.Contains(t, foundVersion.MinorVersion, "10.2")
 }
 
 func TestFindVersionOnlyGlob(t *testing.T) {
@@ -99,6 +102,7 @@ func TestFindVersionOnlyGlob(t *testing.T) {
 	foundVersion, err = basicClient.FindVersion("vmware_tools", "vmtools", "*")
 	assert.Nil(t, err)
 	assert.NotEmpty(t, foundVersion.Code)
+	assert.Contains(t, foundVersion.MinorVersion, ".")
 }
 
 func TestGetVersionArraySuccess(t *testing.T) {

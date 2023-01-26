@@ -12,6 +12,7 @@ import (
 type APIVersions struct {
 	Code         string
 	MajorVersion string
+	MinorVersion string
 }
 
 var ErrorNoMatchingVersions = errors.New("versions: invalid glob. no versions found")
@@ -73,6 +74,7 @@ func (c *Client) FindVersion(slug, subProduct, version string) (data APIVersions
 	}
 
 	data = versionMap[searchVersion]
+	data.MinorVersion = searchVersion
 	return
 }
 
@@ -92,7 +94,7 @@ func (c *Client) FindVersionFromGlob(versionGlob string, versionMap map[string]A
 
 	sortedKeys := sortVersionMapKeys(versionMap)
 
-	// Check if only * is provided as strings.Split returns empty if separator is found
+	// Check if only * is provided as strings. Split returns empty if separator is found.
 	if versionPrefix == "" {
 		// return the first entry, which is the highest number.
 		version = sortedKeys[0]
