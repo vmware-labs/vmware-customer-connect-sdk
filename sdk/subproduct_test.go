@@ -54,6 +54,14 @@ func TestGetSubProductsMapNsxLe(t *testing.T) {
 	assert.Contains(t, subProducts, "nsx_le")
 }
 
+func TestGetSubProductsMapNsxTLe(t *testing.T) {
+	var subProducts map[string]SubProductDetails
+	subProducts, err = basicClient.GetSubProductsMap("vmware_nsx_t_data_center")
+	assert.Nil(t, err)
+	assert.Contains(t, subProducts, "nsx-t")
+	assert.Contains(t, subProducts, "nsx-t_le")
+}
+
 func TestGetSubProductsMapInvalidSlug(t *testing.T) {
 	var subProductMap map[string]SubProductDetails
 	subProductMap, err = basicClient.GetSubProductsMap("vsphere")

@@ -105,7 +105,7 @@ func (c *Client) GetSubProductsMap(slug string) (data map[string]SubProductDetai
 
 				subProductMap[productCode].DlgListByVersion[majorVersion] = dlgList
 
-				if productCode == "nsx" {
+				if productCode == "nsx" || productCode == "nsx-t" {
 					DuplicateNsxToNsxLe(subProductMap, productCode, productName, majorVersion, dlgList)
 				}
 			}
