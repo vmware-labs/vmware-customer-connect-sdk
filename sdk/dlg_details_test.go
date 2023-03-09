@@ -109,7 +109,7 @@ func TestGetGetDlgProduct(t *testing.T) {
 func TestGetGetDlgProductNsx(t *testing.T) {
 	var productID string
 	var apiVersions APIVersions
-	productID, apiVersions, err = basicClient.GetDlgProduct("vmware_nsx", "nsx", "4.0.1.1")
+	productID, apiVersions, err = basicClient.GetDlgProduct("vmware_nsx", "nsx", "4.0*")
 	assert.Nil(t, err)
 	assert.NotContains(t, apiVersions.Code, "-LE")
 	assert.NotEmpty(t, productID, "Expected response to no be empty")
@@ -119,6 +119,24 @@ func TestGetGetDlgProductNsxLe(t *testing.T) {
 	var productID string
 	var apiVersions APIVersions
 	productID, apiVersions, err = basicClient.GetDlgProduct("vmware_nsx", "nsx_le", "4.0.1.1 LE")
+	assert.Nil(t, err)
+	assert.Contains(t, apiVersions.Code, "-LE")
+	assert.NotEmpty(t, productID, "Expected response to no be empty")
+}
+
+func TestGetGetDlgProductNsxT(t *testing.T) {
+	var productID string
+	var apiVersions APIVersions
+	productID, apiVersions, err = basicClient.GetDlgProduct("vmware_nsx_t_data_center", "nsx-t", "3.2*")
+	assert.Nil(t, err)
+	assert.NotContains(t, apiVersions.Code, "-LE")
+	assert.NotEmpty(t, productID, "Expected response to no be empty")
+}
+
+func TestGetGetDlgProductNsxTLe(t *testing.T) {
+	var productID string
+	var apiVersions APIVersions
+	productID, apiVersions, err = basicClient.GetDlgProduct("vmware_nsx_t_data_center", "nsx-t_le", "3.2.1.2 LE")
 	assert.Nil(t, err)
 	assert.Contains(t, apiVersions.Code, "-LE")
 	assert.NotEmpty(t, productID, "Expected response to no be empty")

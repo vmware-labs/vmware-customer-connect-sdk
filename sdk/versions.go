@@ -37,9 +37,11 @@ func (c *Client) GetVersionMap(slug, subProductName string) (data map[string]API
 		}
 
 		for _, version := range dlgHeader.Versions {
-			if ( subProductName != "nsx" && subProductName != "nsx_le"  ) || 
+			if ( subProductName != "nsx" && subProductName != "nsx_le" && subProductName != "nsx-t" && subProductName != "nsx-t_le" ) ||
 					(subProductName == "nsx_le" && strings.HasSuffix(version.ID, "-LE")) ||
-					(subProductName == "nsx" && !strings.HasSuffix(version.ID, "-LE")) {
+					(subProductName == "nsx" && !strings.HasSuffix(version.ID, "-LE")) || 
+					(subProductName == "nsx-t_le" && strings.HasSuffix(version.ID, "-LE")) ||
+					(subProductName == "nsx-t" && !strings.HasSuffix(version.ID, "-LE")) {
 				data[version.Name] = APIVersions{
 					Code:         version.ID,
 					MajorVersion: majorVersion,

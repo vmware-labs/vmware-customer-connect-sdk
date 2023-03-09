@@ -138,11 +138,14 @@ func ModifyHorizonClientCode(productCode string) (string) {
 	return productCode
 }
 
+// Duplicate NSX LE to a separate subproduct
 func DuplicateNsxToNsxLe(subProductMap map[string]SubProductDetails, productCode, productName, majorVersion string, dlgList DlgList) {
-	subProductMap[productCode + "_le"] = SubProductDetails{
-		ProductName:      productName + " Limited Edition",
-		ProductCode:      productCode + "_le",
-		DlgListByVersion: make(map[string]DlgList),
+	if _, ok := subProductMap[productCode + "_le"]; !ok {
+		subProductMap[productCode + "_le"] = SubProductDetails{
+			ProductName:      productName + " Limited Edition",
+			ProductCode:      productCode + "_le",
+			DlgListByVersion: make(map[string]DlgList),
+		}
 	}
 	dlgList.Name = dlgList.Name + " Limited Edition"
 	dlgList.Code = dlgList.Code + "-LE"

@@ -16,6 +16,14 @@ func TestGetSubProductsSlice(t *testing.T) {
 	assert.GreaterOrEqual(t, len(subProducts), 20, "Expected response to contain at least 20 items")
 }
 
+func TestGetSubProductNsxLE(t *testing.T) {
+	var subProduct SubProductDetails
+	subProduct, err = basicClient.GetSubProduct("vmware_nsx_t_data_center", "nsx-t_le")
+	assert.Nil(t, err)
+	assert.NotEmpty(t, subProduct.ProductName)
+	assert.Greater(t, len(subProduct.DlgListByVersion), 1)
+}
+
 func TestGetSubProduct(t *testing.T) {
 	var subProduct SubProductDetails
 	subProduct, err = basicClient.GetSubProduct("vmware_horizon", "dem+standard")
