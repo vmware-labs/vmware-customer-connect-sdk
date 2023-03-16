@@ -24,6 +24,9 @@ export VMWCC_PASS='<password>'
 
 Run test with `go test ./...`.
 
+## Updating dependencies
+Run `GOPROXY=direct go get -u ./...` to pull in the latest dependencies.
+
 ## Contributing
 
 Please see our [Code of Conduct](CODE-OF-CONDUCT.md) and [Contributors guide](CONTRIBUTING.md).
