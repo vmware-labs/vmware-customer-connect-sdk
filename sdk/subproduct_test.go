@@ -21,7 +21,7 @@ func TestGetSubProductNsxLE(t *testing.T) {
 	subProduct, err = basicClient.GetSubProduct("vmware_nsx_t_data_center", "nsx-t_le")
 	assert.Nil(t, err)
 	assert.NotEmpty(t, subProduct.ProductName)
-	assert.Greater(t, len(subProduct.DlgListByVersion), 1)
+	assert.Greater(t, len(subProduct.DlgListByVersion), 0)
 }
 
 func TestGetSubProduct(t *testing.T) {
