@@ -43,11 +43,12 @@ func (c *Client) GetSubProductsMap(slug string) (data map[string]SubProductDetai
 		return
 	}
 
+	dlgType := "PRODUCT_BINARY"
 	// Iterate major product versions and extract all unique products
 	// All version information is stripped
 	for _, majorVersion := range majorVersions {
 		var dlgEditionsList []DlgEditionsLists
-		dlgEditionsList, err = c.GetDlgEditionsList(slug, majorVersion)
+		dlgEditionsList, err = c.GetDlgEditionsList(slug, majorVersion, dlgType)
 		// Invalid version errors need to be ignored, as they come from deprecated products
 		if err == ErrorInvalidVersion {
 			err = nil
