@@ -35,7 +35,7 @@ const (
 
 var ErrorInvalidDownloadPayload = errors.New("download: invalid download payload")
 
-func (c *Client) GenerateDownloadPayload(slug, subProduct, version, fileName string, acceptEula bool) (data []DownloadPayload, err error) {
+func (c *Client) GenerateDownloadPayload(slug, subProduct, version, fileName, dlgType string, acceptEula bool) (data []DownloadPayload, err error) {
 	if err = c.CheckLoggedIn(); err != nil {
 		return
 	}
@@ -51,7 +51,7 @@ func (c *Client) GenerateDownloadPayload(slug, subProduct, version, fileName str
 
 	var productID string
 	var apiVersions APIVersions
-	productID, apiVersions, err = c.GetDlgProduct(slug, subProduct, version)
+	productID, apiVersions, err = c.GetDlgProduct(slug, subProduct, version, dlgType)
 	if err != nil {
 		return
 	}

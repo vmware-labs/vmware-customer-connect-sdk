@@ -24,7 +24,7 @@ type SubProductSliceElement struct {
 var ErrorInvalidSubProduct = errors.New("subproduct: invalid subproduct requested")
 var ErrorInvalidSubProductMajorVersion = errors.New("subproduct: invalid major version requested")
 
-func (c *Client) GetSubProductsMap(slug string) (data map[string]SubProductDetails, err error) {
+func (c *Client) GetSubProductsMap(slug, dlgType string) (data map[string]SubProductDetails, err error) {
 	c.EnsureProductDetailMap()
 	if err != nil {
 		return
@@ -43,7 +43,6 @@ func (c *Client) GetSubProductsMap(slug string) (data map[string]SubProductDetai
 		return
 	}
 
-	dlgType := "PRODUCT_BINARY"
 	// Iterate major product versions and extract all unique products
 	// All version information is stripped
 	for _, majorVersion := range majorVersions {
@@ -154,8 +153,8 @@ func DuplicateNsxToNsxLe(subProductMap map[string]SubProductDetails, productCode
 }
 
 
-func (c *Client) GetSubProductsSlice(slug string) (data []SubProductDetails, err error) {
-	subProductMap, err := c.GetSubProductsMap(slug)
+func (c *Client) GetSubProductsSlice(slug, dlgType string) (data []SubProductDetails, err error) {
+	subProductMap, err := c.GetSubProductsMap(slug, dlgType)
 	if err != nil {
 		return
 	}
@@ -177,9 +176,9 @@ func (c *Client) GetSubProductsSlice(slug string) (data []SubProductDetails, err
 	return
 }
 
-func (c *Client) GetSubProduct(slug, subProduct string) (data SubProductDetails, err error) {
+func (c *Client) GetSubProduct(slug, subProduct, dlgType string) (data SubProductDetails, err error) {
 	var subProductMap map[string]SubProductDetails
-	subProductMap, err = c.GetSubProductsMap(slug)
+	subProductMap, err = c.GetSubProductsMap(slug, dlgType)
 	if err != nil {
 		return
 	}
@@ -193,9 +192,9 @@ func (c *Client) GetSubProduct(slug, subProduct string) (data SubProductDetails,
 	return
 }
 
-func (c *Client) GetSubProductDetails(slug, subProduct, majorVersion string) (data DlgList, err error) {
+func (c *Client) GetSubProductDetails(slug, subProduct, majorVersion, dlgType string) (data DlgList, err error) {
 	var subProducts map[string]SubProductDetails
-	subProducts, err = c.GetSubProductsMap(slug)
+	subProducts, err = c.GetSubProductsMap(slug, dlgType)
 	if err != nil {
 		return
 	}
