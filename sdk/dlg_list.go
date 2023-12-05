@@ -30,13 +30,13 @@ const (
 	dlgListURL = baseURL + "/channel/public/api/v1.0/products/getRelatedDLGList"
 )
 
-// curl "https://my.vmware.com/channel/public/api/v1.0/products/getRelatedDLGList?category=datacenter_cloud_infrastructure&product=vmware_vsan&version=7_0&dlgType=PRODUCT_BINARY" |jq
-func (c *Client) GetDlgEditionsList(slug, majorVersion string) (data []DlgEditionsLists, err error) {
+// curl "https://my.vmware.com/channel/public/api/v1.0/products/getRelatedDLGList?category= &product=vmware_vsan&version=7_0&dlgType=PRODUCT_BINARY" |jq
+func (c *Client) GetDlgEditionsList(slug, majorVersion, dlgType string) (data []DlgEditionsLists, err error) {
 	var category string
 	category, err = c.GetCategory(slug)
 	if err != nil {return}
 
-	search_string := fmt.Sprintf("?category=%s&product=%s&version=%s&dlgType=PRODUCT_BINARY", category, slug, majorVersion)
+	search_string := fmt.Sprintf("?category=%s&product=%s&version=%s&dlgType=%s", category, slug, majorVersion, dlgType)
 	var res *http.Response
 	res, err = c.HttpClient.Get(dlgListURL + search_string)
 	if err != nil {return}

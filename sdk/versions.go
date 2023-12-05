@@ -19,11 +19,11 @@ var ErrorNoMatchingVersions = errors.New("versions: invalid glob. no versions fo
 var ErrorNoVersinGlob = errors.New("versions: invalid glob. glob my be provided")
 var ErrorMultipleVersionGlob = errors.New("versions: invalid glob. a single version glob must be used")
 
-func (c *Client) GetVersionMap(slug, subProductName string) (data map[string]APIVersions, err error) {
+func (c *Client) GetVersionMap(slug, subProductName, dlgType string) (data map[string]APIVersions, err error) {
 	data = make(map[string]APIVersions)
 
 	var subProductDetails  SubProductDetails
-	subProductDetails, err = c.GetSubProduct(slug, subProductName)
+	subProductDetails, err = c.GetSubProduct(slug, subProductName, dlgType)
 	if err != nil {
 		return
 	}
@@ -53,9 +53,9 @@ func (c *Client) GetVersionMap(slug, subProductName string) (data map[string]API
 	return
 }
 
-func (c *Client) FindVersion(slug, subProduct, version string) (data APIVersions, err error) {
+func (c *Client) FindVersion(slug, subProduct, version, dlgType string) (data APIVersions, err error) {
 	var versionMap map[string]APIVersions
-	versionMap, err = c.GetVersionMap(slug, subProduct)
+	versionMap, err = c.GetVersionMap(slug, subProduct, dlgType)
 	if err != nil {
 		return
 	}
@@ -115,9 +115,9 @@ func (c *Client) FindVersionFromGlob(versionGlob string, versionMap map[string]A
 	return
 }
 
-func (c *Client) GetVersionSlice(slug, subProductName string) (data []string, err error) {
+func (c *Client) GetVersionSlice(slug, subProductName, dlgType string) (data []string, err error) {
 	var versionMap map[string]APIVersions
-	versionMap, err = c.GetVersionMap(slug, subProductName)
+	versionMap, err = c.GetVersionMap(slug, subProductName, dlgType)
 	if err != nil {
 		return
 	}

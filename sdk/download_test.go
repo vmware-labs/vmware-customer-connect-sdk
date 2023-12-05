@@ -16,7 +16,7 @@ func TestFetchDownloadLinkVersionGlob(t *testing.T) {
 	require.Nil(t, err)
 
 	var downloadPayload []DownloadPayload
-	downloadPayload, err = authenticatedClient.GenerateDownloadPayload("vmware_tools", "vmtools", "11.*", "VMware-Tools-darwin-*.tar.gz", true)
+	downloadPayload, err = authenticatedClient.GenerateDownloadPayload("vmware_tools", "vmtools", "11.*", "VMware-Tools-darwin-*.tar.gz", "PRODUCT_BINARY", true)
 	require.Nil(t, err)
 	require.NotEmpty(t, downloadPayload)
 	assert.NotEmpty(t, downloadPayload[0].ProductId, "Expected response not to be empty")
@@ -36,7 +36,7 @@ func TestFetchDownloadLinkVersion(t *testing.T) {
 	require.Nil(t, err)
 
 	var downloadPayload []DownloadPayload
-	downloadPayload, err = authenticatedClient.GenerateDownloadPayload("vmware_tools", "vmtools", "11.1.1", "VMware-Tools-darwin-*.tar.gz", true)
+	downloadPayload, err = authenticatedClient.GenerateDownloadPayload("vmware_tools", "vmtools", "11.1.1", "VMware-Tools-darwin-*.tar.gz", "PRODUCT_BINARY", true)
 	assert.Nil(t, err)
 	require.NotEmpty(t, downloadPayload)
 	assert.NotEmpty(t, downloadPayload[0].ProductId, "Expected response not to be empty")
@@ -56,7 +56,7 @@ func TestFetchDownloadLinkInvalidVersion(t *testing.T) {
 	require.Nil(t, err)
 
 	var downloadPayload []DownloadPayload
-	downloadPayload, err = authenticatedClient.GenerateDownloadPayload("vmware_tools", "vmtools", "666", "VMware-Tools-darwin-*.tar.gz", true)
+	downloadPayload, err = authenticatedClient.GenerateDownloadPayload("vmware_tools", "vmtools", "666", "VMware-Tools-darwin-*.tar.gz", "PRODUCT_BINARY", true)
 	assert.ErrorIs(t, err, ErrorInvalidVersion)
 	assert.Empty(t, downloadPayload, "Expected response to be empty")
 }
@@ -66,7 +66,7 @@ func TestFetchDownloadLinkNeedEula(t *testing.T) {
 	require.Nil(t, err)
 
 	var downloadPayload []DownloadPayload
-	downloadPayload, err = authenticatedClient.GenerateDownloadPayload("vmware_tools", "vmtools", "11.1.0", "VMware-Tools-darwin-*.tar.gz", false)
+	downloadPayload, err = authenticatedClient.GenerateDownloadPayload("vmware_tools", "vmtools", "11.1.0", "VMware-Tools-darwin-*.tar.gz", "PRODUCT_BINARY", false)
 	assert.ErrorIs(t, err, ErrorEulaUnaccepted)
 	assert.Empty(t, downloadPayload, "Expected response to be empty")
 }
@@ -76,7 +76,7 @@ func TestFetchDownloadLinkNotEntitled(t *testing.T) {
 	require.Nil(t, err)
 
 	var downloadPayload []DownloadPayload
-	downloadPayload, err = authenticatedClient.GenerateDownloadPayload("vmware_nsx_t_data_center", "nsx-t", "3.2.3.1", "nsx-unified-appliance-secondary-*.qcow2", true)
+	downloadPayload, err = authenticatedClient.GenerateDownloadPayload("vmware_nsx_t_data_center", "nsx-t", "3.2.3.1", "nsx-unified-appliance-secondary-*.qcow2", "PRODUCT_BINARY", true)
 	assert.ErrorIs(t, err, ErrorNotEntitled)
 	assert.Empty(t, downloadPayload, "Expected response to be empty")
 }
@@ -86,7 +86,7 @@ func TestGenerateDownloadInvalidVersionGlob(t *testing.T) {
 	require.Nil(t, err)
 
 	var downloadPayload []DownloadPayload
-	downloadPayload, err = authenticatedClient.GenerateDownloadPayload("vmware_tools", "vmtools", "666.*", "VMware-Tools-darwin-*.tar.gz", true)
+	downloadPayload, err = authenticatedClient.GenerateDownloadPayload("vmware_tools", "vmtools", "666.*", "VMware-Tools-darwin-*.tar.gz", "PRODUCT_BINARY", true)
 	assert.ErrorIs(t, err, ErrorNoMatchingVersions)
 	assert.Empty(t, downloadPayload, "Expected response to be empty")
 }
@@ -96,7 +96,7 @@ func TestGenerateDownloadDoubleVersion(t *testing.T) {
 	require.Nil(t, err)
 
 	var downloadPayload []DownloadPayload
-	downloadPayload, err = authenticatedClient.GenerateDownloadPayload("vmware_tools", "vmtools", "*.*", "VMware-Tools-darwin-*.tar.gz", true)
+	downloadPayload, err = authenticatedClient.GenerateDownloadPayload("vmware_tools", "vmtools", "*.*", "VMware-Tools-darwin-*.tar.gz", "PRODUCT_BINARY", true)
 	assert.ErrorIs(t, err, ErrorMultipleVersionGlob)
 	assert.Empty(t, downloadPayload, "Expected response to be empty")
 }

@@ -128,10 +128,10 @@ func (c *Client) FindDlgDetails(downloadGroup, productId, fileName string) (data
 	return
 }
 
-func (c *Client) GetFileArray(slug, subProduct, version string) (data []string, err error) {
+func (c *Client) GetFileArray(slug, subProduct, version, dlgType string) (data []string, err error) {
 	var productID string
 	var apiVersions APIVersions
-	productID, apiVersions, err = c.GetDlgProduct(slug, subProduct, version)
+	productID, apiVersions, err = c.GetDlgProduct(slug, subProduct, version, dlgType)
 	if err != nil {
 		return
 	}
@@ -151,15 +151,15 @@ func (c *Client) GetFileArray(slug, subProduct, version string) (data []string, 
 	return
 }
 
-func (c *Client) GetDlgProduct(slug, subProduct, version string) (productID string, apiVersions APIVersions, err error) {
+func (c *Client) GetDlgProduct(slug, subProduct, version, dlgType string) (productID string, apiVersions APIVersions, err error) {
 	// Find the API version details
-	apiVersions, err = c.FindVersion(slug, subProduct, version)
+	apiVersions, err = c.FindVersion(slug, subProduct, version, dlgType)
 	if err != nil {
 		return
 	}
 
 	var subProductDetails DlgList
-	subProductDetails, err = c.GetSubProductDetails(slug, subProduct, apiVersions.MajorVersion)
+	subProductDetails, err = c.GetSubProductDetails(slug, subProduct, apiVersions.MajorVersion, dlgType)
 	if err != nil {
 		return
 	}
