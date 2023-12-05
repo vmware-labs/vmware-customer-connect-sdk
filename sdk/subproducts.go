@@ -5,6 +5,7 @@ package sdk
 
 import (
 	"errors"
+	"fmt"
 	"regexp"
 	"sort"
 	"strings"
@@ -24,7 +25,7 @@ type SubProductSliceElement struct {
 var ErrorInvalidSubProduct = errors.New("subproduct: invalid subproduct requested")
 var ErrorInvalidSubProductMajorVersion = errors.New("subproduct: invalid major version requested")
 
-func (c *Client) GetSubProductsMap(slug string) (data map[string]SubProductDetails, err error) {
+func (c *Client) GetSubProductsMap(slug string) (subProductMap map[string]SubProductDetails, err error) {
 	c.EnsureProductDetailMap()
 	if err != nil {
 		return
@@ -35,7 +36,7 @@ func (c *Client) GetSubProductsMap(slug string) (data map[string]SubProductDetai
 		return
 	}
 
-	subProductMap := make(map[string]SubProductDetails)
+	subProductMap = make(map[string]SubProductDetails)
 
 	var majorVersions []string
 	majorVersions, err = c.GetMajorVersionsSlice(slug)
@@ -59,12 +60,13 @@ func (c *Client) GetSubProductsMap(slug string) (data map[string]SubProductDetai
 		for _, dlgEdition := range dlgEditionsList {
 			for _, dlgList := range dlgEdition.DlgList {
 				productCode := strings.ToLower(dlgList.Code)
-				productName := dlgList.Name
+				// productName := dlgList.Name
 				// Regex captures numbers and all text after
 				reEndVersion := regexp.MustCompile(`[0-9]+.*`)
 				// Regex detects numbers surrounded by - or _
 				reMidVersion := regexp.MustCompile(`(-|_)([0-9.]+)(-|_)`)
 
+				productName := getProductName(dlgList.Name, slug, dlgEdition.Name, reEndVersion)
 				// Horizon clients don't follow a common pattern for API naming. This block aligns the pattern
 				if strings.HasPrefix(productCode, "cart") {
 					productCode = ModifyHorizonClientCode(productCode)
@@ -84,16 +86,6 @@ func (c *Client) GetSubProductsMap(slug string) (data map[string]SubProductDetai
 					}
 				}
 
-				// Special case for Horizon due to inconsistent naming
-				if slug == "vmware_horizon" {
-					reNumbers := regexp.MustCompile(`[0-9.,]+`)
-					reSpace := regexp.MustCompile(`\s+`)
-					productName = strings.TrimSpace(reNumbers.ReplaceAllString(productName, ""))
-					productName = reSpace.ReplaceAllString(productName, " ")
-				} else {
-					productName = strings.TrimSpace(reEndVersion.ReplaceAllString(productName, ""))
-				}
-
 				// Initalize the struct for a product code for the first time
 				if _, ok := subProductMap[productCode]; !ok {
 					subProductMap[productCode] = SubProductDetails{
@@ -111,9 +103,25 @@ func (c *Client) GetSubProductsMap(slug string) (data map[string]SubProductDetai
 			}
 		}
 	}
-
-	data = subProductMap
 	return
+}
+
+func getProductName(productName, slug, dlgEditionName string, reEndVersion *regexp.Regexp) (string) {
+	// Special case for Horizon due to inconsistent naming
+	if slug == "vmware_horizon" {
+		reNumbers := regexp.MustCompile(`[0-9.,]+`)
+		reSpace := regexp.MustCompile(`\s+`)
+		productName := strings.TrimSpace(reNumbers.ReplaceAllString(productName, ""))
+		return reSpace.ReplaceAllString(productName, " ")
+	// Special case for ESXi drivers to make human readable
+	} else if slug == "vmware_vsphere" && dlgEditionName == "Driver CDs" {
+		stripEsx := regexp.MustCompile(`VMware ESXi [0-9]+.[0-9]+ `)
+		productName = fmt.Sprintf("Driver - %s", stripEsx.ReplaceAllString(productName, ""))
+		return strings.TrimSpace(reEndVersion.ReplaceAllString(productName, ""))
+	} else {
+		return strings.TrimSpace(reEndVersion.ReplaceAllString(productName, ""))
+	}
+
 }
 
 func ModifyHorizonClientCode(productCode string) (string) {

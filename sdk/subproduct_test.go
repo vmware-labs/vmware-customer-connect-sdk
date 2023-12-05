@@ -4,6 +4,7 @@
 package sdk
 
 import (
+	"regexp"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -98,4 +99,11 @@ func TestGetSubProductsDetailsInvalidMajorVersion(t *testing.T) {
 	assert.NotNil(t, err)
 	assert.ErrorIs(t, err, ErrorInvalidSubProductMajorVersion)
 	assert.Empty(t, subProductDetails.Code, "Expected response to be empty")
+}
+
+func TestGetProductName(t *testing.T) {
+	reEndVersion := regexp.MustCompile(`[0-9]+.*`)
+	productName := "VMware ESXi 8.0 native ixgben ENS 1.18.2.0 NIC Driver for Intel Ethernet Controllers 82599, x520, x540, x550, and x552 family"
+	productName = getProductName(productName, "vmware_vsphere", "Driver CDs", reEndVersion)
+	assert.Equal(t, productName, "Driver - native ixgben ENS")
 }
