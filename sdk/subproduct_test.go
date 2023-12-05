@@ -101,9 +101,36 @@ func TestGetSubProductsDetailsInvalidMajorVersion(t *testing.T) {
 	assert.Empty(t, subProductDetails.Code, "Expected response to be empty")
 }
 
+func TestModifyHorizonClientCode(t *testing.T) {
+	productCode := "cart24fq4_lin_2309.1_tarball"
+	productCode = modifyHorizonClientCode(productCode)
+	assert.Equal(t, "cart+tarball", productCode)
+
+	productCode = "one_2"
+	productCode = modifyHorizonClientCode(productCode)
+	assert.Equal(t, "one", productCode)
+}
+
 func TestGetProductName(t *testing.T) {
 	reEndVersion := regexp.MustCompile(`[0-9]+.*`)
-	productName := "VMware ESXi 8.0 native ixgben ENS 1.18.2.0 NIC Driver for Intel Ethernet Controllers 82599, x520, x540, x550, and x552 family"
+	productName := "VMware vSphere Hypervisor (ESXi) 8.0U2"
+	productName = getProductName(productName, "vmware_vsphere", "", reEndVersion)
+	assert.Equal(t, "VMware vSphere Hypervisor (ESXi)", productName)
+
+	// Ensure drivers are unmodified
+	productName = "VMware ESXi 8.0 native ixgben ENS 1.18.2.0 NIC Driver for Intel Ethernet Controllers 82599, x520, x540, x550, and x552 family"
 	productName = getProductName(productName, "vmware_vsphere", "Driver CDs", reEndVersion)
 	assert.Equal(t, productName, "Driver - native ixgben ENS")
+}
+
+func TestGetProductCode(t *testing.T) {
+	reEndVersion := regexp.MustCompile(`[0-9]+.*`)
+	productCode := "ESXI80U2"
+	productCode = getProductCode(productCode, "vmware_vsphere", "", reEndVersion)
+	assert.Equal(t, "esxi", productCode)
+
+	// Ensure drivers are unmodified
+	productCode = "DT-ESXI80-INTEL-I40EN-2650-1OEM"
+	productCode = getProductCode(productCode, "vmware_vsphere", "Driver CDs", reEndVersion)
+	assert.Equal(t, "dt-esxi80-intel-i40en-2650-1oem", productCode)
 }
