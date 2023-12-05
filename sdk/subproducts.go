@@ -77,7 +77,7 @@ func (c *Client) GetSubProductsMap(slug, dlgType string) (subProductMap map[stri
 				subProductMap[productCode].DlgListByVersion[majorVersion] = dlgList
 
 				if productCode == "nsx" || productCode == "nsx-t" {
-					DuplicateNsxToNsxLe(subProductMap, productCode, productName, majorVersion, dlgList)
+					duplicateNsxToNsxLe(subProductMap, productCode, productName, majorVersion, dlgList)
 				}
 			}
 		}
@@ -151,7 +151,7 @@ func modifyHorizonClientCode(productCode string) (string) {
 }
 
 // Duplicate NSX LE to a separate subproduct
-func DuplicateNsxToNsxLe(subProductMap map[string]SubProductDetails, productCode, productName, majorVersion string, dlgList DlgList) {
+func duplicateNsxToNsxLe(subProductMap map[string]SubProductDetails, productCode, productName, majorVersion string, dlgList DlgList) {
 	if _, ok := subProductMap[productCode + "_le"]; !ok {
 		subProductMap[productCode + "_le"] = SubProductDetails{
 			ProductName:      productName + " Limited Edition",
