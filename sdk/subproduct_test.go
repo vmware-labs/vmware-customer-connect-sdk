@@ -128,23 +128,33 @@ func TestModifyHorizonClientCode(t *testing.T) {
 func TestGetProductName(t *testing.T) {
 	reEndVersion := regexp.MustCompile(`[0-9]+.*`)
 	productName := "VMware vSphere Hypervisor (ESXi) 8.0U2"
-	productName = getProductName(productName, "vmware_vsphere", "", reEndVersion)
+	productName = getProductName(productName, "vmware_vsphere", "PRODUCT_BINARY", reEndVersion)
 	assert.Equal(t, "VMware vSphere Hypervisor (ESXi)", productName)
 
 	// Ensure drivers are unmodified
 	productName = "VMware ESXi 8.0 native ixgben ENS 1.18.2.0 NIC Driver for Intel Ethernet Controllers 82599, x520, x540, x550, and x552 family"
-	productName = getProductName(productName, "vmware_vsphere", "Driver CDs", reEndVersion)
-	assert.Equal(t, productName, "Driver - native ixgben ENS")
+	productName = getProductName(productName, "vmware_vsphere", "DRIVERS_TOOLS", reEndVersion)
+	assert.Equal(t, productName, "VMware ESXi 8.0 native ixgben ENS 1.18.2.0 NIC Driver for Intel Ethernet Controllers 82599, x520, x540, x550, and x552 family")
+
+	// Ensure drivers are unmodified
+	productName = "HPE Custom Image for ESXi 7.0 U3 Install CD"
+	productName = getProductName(productName, "vmware_vsphere", "ADDONS", reEndVersion)
+	assert.Equal(t, productName, "HPE Custom Image for ESXi 7.0 U3 Install CD")
 }
 
 func TestGetProductCode(t *testing.T) {
 	reEndVersion := regexp.MustCompile(`[0-9]+.*`)
 	productCode := "ESXI80U2"
-	productCode = getProductCode(productCode, "vmware_vsphere", "", reEndVersion)
+	productCode = getProductCode(productCode, "vmware_vsphere", "PRODUCT_BINARY", reEndVersion)
 	assert.Equal(t, "esxi", productCode)
 
 	// Ensure drivers are unmodified
 	productCode = "DT-ESXI80-INTEL-I40EN-2650-1OEM"
-	productCode = getProductCode(productCode, "vmware_vsphere", "Driver CDs", reEndVersion)
+	productCode = getProductCode(productCode, "vmware_vsphere", "DRIVERS_TOOLS", reEndVersion)
 	assert.Equal(t, "dt-esxi80-intel-i40en-2650-1oem", productCode)
+
+	// Ensure custom isos are unmodified
+	productCode = "OEM-ESXI70U3-HPE"
+	productCode = getProductCode(productCode, "vmware_vsphere", "ADDONS", reEndVersion)
+	assert.Equal(t, "oem-esxi70u3-hpe", productCode)
 }

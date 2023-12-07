@@ -15,7 +15,7 @@ func TestFetchEulaLink(t *testing.T) {
 	require.Nil(t, err)
 
 	var eulaUrl string
-	eulaUrl, err = authenticatedClient.FetchEulaUrl("VMTOOLS1126", "1073")
+	eulaUrl, err = authenticatedClient.FetchEulaUrl("VMTOOLS1235", "1259")
 	assert.Nil(t, err)
 	assert.NotEmpty(t, eulaUrl, "Expected eulaUrl not be empty")
 }
@@ -25,7 +25,7 @@ func TestFetchEulaLinkInvalidCode(t *testing.T) {
 	assert.Nil(t, err)
 
 	var eulaUrl string
-	eulaUrl, err = authenticatedClient.FetchEulaUrl("VMTOOLS1130", "9999")
+	eulaUrl, err = authenticatedClient.FetchEulaUrl("VMTOOLS1235", "9999")
 	assert.NotNil(t, err)
 	assert.ErrorIs(t, err, ErrorDlgDetailsInputs)
 	assert.Empty(t, eulaUrl, "Expected eulaUrl be empty")
@@ -35,6 +35,6 @@ func TestAcceptEula(t *testing.T) {
 	err = ensureLogin(t)
 	require.Nil(t, err)
 
-	err = authenticatedClient.AcceptEula("VMTOOLS1126", "1073")
+	err = authenticatedClient.AcceptEula("VMTOOLS1235", "1259")
 	assert.Nil(t, err)
 }
