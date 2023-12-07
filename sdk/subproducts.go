@@ -5,7 +5,6 @@ package sdk
 
 import (
 	"errors"
-	"fmt"
 	"regexp"
 	"sort"
 	"strings"
@@ -62,8 +61,8 @@ func (c *Client) GetSubProductsMap(slug, dlgType string) (subProductMap map[stri
 				// Regex captures numbers and all text after
 				reEndVersion := regexp.MustCompile(`[0-9]+.*`)
 				
-				productName := getProductName(dlgList.Name, slug, dlgEdition.Name, reEndVersion)
-				productCode := getProductCode(strings.ToLower(dlgList.Code), slug, dlgEdition.Name, reEndVersion)
+				productName := getProductName(dlgList.Name, slug, dlgType, reEndVersion)
+				productCode := getProductCode(strings.ToLower(dlgList.Code), slug, dlgType, reEndVersion)
 
 				// Initalize the struct for a product code for the first time
 				if _, ok := subProductMap[productCode]; !ok {
@@ -85,16 +84,16 @@ func (c *Client) GetSubProductsMap(slug, dlgType string) (subProductMap map[stri
 	return
 }
 
-func getProductCode(productCode, slug, dlgEditionName string, reEndVersion *regexp.Regexp) (string) {
+func getProductCode(productCode, slug, dlgType string, reEndVersion *regexp.Regexp) (string) {
 	productCode = strings.ToLower(productCode)
+	if dlgType != "PRODUCT_BINARY" {
+		return productCode
+	}
 	reMidVersion := regexp.MustCompile(`(-|_)([0-9.]+)(-|_)`)
-	// Horizon clients don't follow a common pattern for API naming. This block aligns the pattern
 	if strings.HasPrefix(productCode, "cart") {
 		return modifyHorizonClientCode(productCode)
-	} 
-	if slug == "vmware_vsphere" && dlgEditionName == "Driver CDs" {
-		return productCode
-	} 
+		} 
+	// Horizon clients don't follow a common pattern for API naming. This block aligns the pattern
 	// Check if product code has text after the version section
 	if ok := reMidVersion.MatchString(productCode); ok{
 		// replace version with + to allow for string to be split when searching
@@ -110,22 +109,19 @@ func getProductCode(productCode, slug, dlgEditionName string, reEndVersion *rege
 	return productCode
 }
 
-func getProductName(productName, slug, dlgEditionName string, reEndVersion *regexp.Regexp) (string) {
+func getProductName(productName, slug, dlgType string, reEndVersion *regexp.Regexp) (string) {
+	if dlgType != "PRODUCT_BINARY" {
+		return productName
+	}
 	// Special case for Horizon due to inconsistent naming
 	if slug == "vmware_horizon" {
 		reNumbers := regexp.MustCompile(`[0-9.,]+`)
 		reSpace := regexp.MustCompile(`\s+`)
 		productName := strings.TrimSpace(reNumbers.ReplaceAllString(productName, ""))
 		return reSpace.ReplaceAllString(productName, " ")
-	// Special case for ESXi drivers to make human readable
-	} else if slug == "vmware_vsphere" && dlgEditionName == "Driver CDs" {
-		stripEsx := regexp.MustCompile(`VMware ESXi [0-9]+.[0-9]+ `)
-		productName = fmt.Sprintf("Driver - %s", stripEsx.ReplaceAllString(productName, ""))
-		return strings.TrimSpace(reEndVersion.ReplaceAllString(productName, ""))
 	} else {
 		return strings.TrimSpace(reEndVersion.ReplaceAllString(productName, ""))
 	}
-
 }
 
 func modifyHorizonClientCode(productCode string) (string) {
