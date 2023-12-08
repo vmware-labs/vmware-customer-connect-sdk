@@ -6,6 +6,7 @@ package sdk
 import (
 	"errors"
 	"regexp"
+	"slices"
 	"sort"
 	"strings"
 )
@@ -24,35 +25,53 @@ type SubProductSliceElement struct {
 var ErrorInvalidSubProduct = errors.New("subproduct: invalid subproduct requested")
 var ErrorInvalidSubProductMajorVersion = errors.New("subproduct: invalid major version requested")
 
-func (c *Client) GetSubProductsMap(slug, dlgType string) (subProductMap map[string]SubProductDetails, err error) {
+func (c *Client) GetSubProductsMap(slug, dlgType, requestedMajorVersion string) (subProductMap map[string]SubProductDetails, err error) {
 	c.EnsureProductDetailMap()
 	if err != nil {
 		return
 	}
-
 	if _, ok := ProductDetailMap[slug]; !ok {
 		err = ErrorInvalidSlug
 		return
 	}
-
-	subProductMap = make(map[string]SubProductDetails)
-
 	var majorVersions []string
 	majorVersions, err = c.GetMajorVersionsSlice(slug)
 	if err != nil {
 		return
 	}
 
-	// Iterate major product versions and extract all unique products
-	// All version information is stripped
-	for _, majorVersion := range majorVersions {
-		var dlgEditionsList []DlgEditionsLists
+	subProductMap = make(map[string]SubProductDetails)
+
+	// Only process requested major version, otherwise process all for slug
+	if requestedMajorVersion != "" {
+		if !slices.Contains(majorVersions, requestedMajorVersion) {
+			err = ErrorInvalidSubProductMajorVersion
+			return
+		}
+		err = c.processMajorVersion(slug, requestedMajorVersion, dlgType, subProductMap)
+		if err != nil {
+			return
+		}
+	} else {
+			// Iterate major product versions and extract all unique products
+			// All version information is stripped
+		for _, majorVersion := range majorVersions {		
+			c.processMajorVersion(slug, majorVersion, dlgType, subProductMap)
+			// Invalid version errors need to be ignored, as they come from deprecated products
+			if err == ErrorInvalidVersion {
+				err = nil
+			} else if err != nil {
+				return
+			}
+		}
+	}
+	return
+}
+
+func (c *Client) processMajorVersion (slug, majorVersion, dlgType string, subProductMap map[string]SubProductDetails) (err error) {
+	var dlgEditionsList []DlgEditionsLists
 		dlgEditionsList, err = c.GetDlgEditionsList(slug, majorVersion, dlgType)
-		// Invalid version errors need to be ignored, as they come from deprecated products
-		if err == ErrorInvalidVersion {
-			err = nil
-			continue
-		} else if err != nil {
+		if err != nil {
 			return
 		}
 
@@ -80,7 +99,6 @@ func (c *Client) GetSubProductsMap(slug, dlgType string) (subProductMap map[stri
 				}
 			}
 		}
-	}
 	return
 }
 
@@ -160,9 +178,8 @@ func duplicateNsxToNsxLe(subProductMap map[string]SubProductDetails, productCode
 	subProductMap[productCode + "_le"].DlgListByVersion[majorVersion] = dlgList
 }
 
-
-func (c *Client) GetSubProductsSlice(slug, dlgType string) (data []SubProductDetails, err error) {
-	subProductMap, err := c.GetSubProductsMap(slug, dlgType)
+func (c *Client) GetSubProductsSlice(slug, dlgType, majorVersion string) (data []SubProductDetails, err error) {
+	subProductMap, err := c.GetSubProductsMap(slug, dlgType, majorVersion)
 	if err != nil {
 		return
 	}
@@ -186,7 +203,7 @@ func (c *Client) GetSubProductsSlice(slug, dlgType string) (data []SubProductDet
 
 func (c *Client) GetSubProduct(slug, subProduct, dlgType string) (data SubProductDetails, err error) {
 	var subProductMap map[string]SubProductDetails
-	subProductMap, err = c.GetSubProductsMap(slug, dlgType)
+	subProductMap, err = c.GetSubProductsMap(slug, dlgType, "")
 	if err != nil {
 		return
 	}
@@ -202,7 +219,7 @@ func (c *Client) GetSubProduct(slug, subProduct, dlgType string) (data SubProduc
 
 func (c *Client) GetSubProductDetails(slug, subProduct, majorVersion, dlgType string) (data DlgList, err error) {
 	var subProducts map[string]SubProductDetails
-	subProducts, err = c.GetSubProductsMap(slug, dlgType)
+	subProducts, err = c.GetSubProductsMap(slug, dlgType, "")
 	if err != nil {
 		return
 	}
