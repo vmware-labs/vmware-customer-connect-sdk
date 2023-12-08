@@ -30,37 +30,48 @@ func (c *Client) GetSubProductsMap(slug, dlgType, requestedMajorVersion string) 
 	if err != nil {
 		return
 	}
-
 	if _, ok := ProductDetailMap[slug]; !ok {
 		err = ErrorInvalidSlug
 		return
 	}
-
-	subProductMap = make(map[string]SubProductDetails)
-
 	var majorVersions []string
 	majorVersions, err = c.GetMajorVersionsSlice(slug)
 	if err != nil {
 		return
 	}
+
+	subProductMap = make(map[string]SubProductDetails)
+
+	// Only process requested major version, otherwise process all for slug
 	if requestedMajorVersion != "" {
 		if !slices.Contains(majorVersions, requestedMajorVersion) {
 			err = ErrorInvalidSubProductMajorVersion
 			return
 		}
-		//TODO perform logic
+		err = c.processMajorVersion(slug, requestedMajorVersion, dlgType, subProductMap)
+		if err != nil {
+			return
+		}
+	} else {
+			// Iterate major product versions and extract all unique products
+			// All version information is stripped
+		for _, majorVersion := range majorVersions {		
+			c.processMajorVersion(slug, majorVersion, dlgType, subProductMap)
+			// Invalid version errors need to be ignored, as they come from deprecated products
+			if err == ErrorInvalidVersion {
+				err = nil
+			} else if err != nil {
+				return
+			}
+		}
 	}
+	return
+}
 
-	// Iterate major product versions and extract all unique products
-	// All version information is stripped
-	for _, majorVersion := range majorVersions {
-		var dlgEditionsList []DlgEditionsLists
+func (c *Client) processMajorVersion (slug, majorVersion, dlgType string, subProductMap map[string]SubProductDetails) (err error) {
+	var dlgEditionsList []DlgEditionsLists
 		dlgEditionsList, err = c.GetDlgEditionsList(slug, majorVersion, dlgType)
-		// Invalid version errors need to be ignored, as they come from deprecated products
-		if err == ErrorInvalidVersion {
-			err = nil
-			continue
-		} else if err != nil {
+		if err != nil {
 			return
 		}
 
@@ -88,7 +99,6 @@ func (c *Client) GetSubProductsMap(slug, dlgType, requestedMajorVersion string) 
 				}
 			}
 		}
-	}
 	return
 }
 

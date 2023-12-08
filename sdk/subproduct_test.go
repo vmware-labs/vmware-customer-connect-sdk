@@ -21,11 +21,12 @@ func TestGetSubProductsSliceDrivers(t *testing.T) {
 	var subProducts []SubProductDetails
 	subProducts, err = basicClient.GetSubProductsSlice("vmware_vsphere", "DRIVERS_TOOLS", "")
 	assert.Nil(t, err)
-	assert.GreaterOrEqual(t, len(subProducts), 200, "Expected response to contain at least 200 items")
-
+	assert.GreaterOrEqual(t, len(subProducts), 400, "Expected response to contain at least 200 items")
+	
 	// Ensure less results are returned after specifying majpor version
 	subProducts, err = basicClient.GetSubProductsSlice("vmware_vsphere", "DRIVERS_TOOLS", "8_0")
 	assert.Nil(t, err)
+	assert.GreaterOrEqual(t, len(subProducts), 100, "Expected response to contain at least 100 items")
 	assert.LessOrEqual(t, len(subProducts), 400, "Expected response to contain less than 400 items")
 }
 
@@ -43,13 +44,6 @@ func TestGetSubProductNsxLE(t *testing.T) {
 	assert.NotEmpty(t, subProduct.ProductName)
 	assert.Greater(t, len(subProduct.DlgListByVersion), 0)
 }
-
-// func TestGetSubProduct(t *testing.T) {
-// 	var subProduct SubProductDetails
-// 	subProduct, err = basicClient.GetSubProduct("vmware_vsphere", "dem+standard", "PRODUCT_BINARY")
-// 	assert.Nil(t, err)
-// 	assert.NotEmpty(t, subProduct.ProductName)
-// }
 
 func TestGetSubProductDriver(t *testing.T) {
 	var subProduct SubProductDetails
