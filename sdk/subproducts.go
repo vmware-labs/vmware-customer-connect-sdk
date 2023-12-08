@@ -6,6 +6,7 @@ package sdk
 import (
 	"errors"
 	"regexp"
+	"slices"
 	"sort"
 	"strings"
 )
@@ -24,7 +25,7 @@ type SubProductSliceElement struct {
 var ErrorInvalidSubProduct = errors.New("subproduct: invalid subproduct requested")
 var ErrorInvalidSubProductMajorVersion = errors.New("subproduct: invalid major version requested")
 
-func (c *Client) GetSubProductsMap(slug, dlgType string) (subProductMap map[string]SubProductDetails, err error) {
+func (c *Client) GetSubProductsMap(slug, dlgType, requestedMajorVersion string) (subProductMap map[string]SubProductDetails, err error) {
 	c.EnsureProductDetailMap()
 	if err != nil {
 		return
@@ -41,6 +42,13 @@ func (c *Client) GetSubProductsMap(slug, dlgType string) (subProductMap map[stri
 	majorVersions, err = c.GetMajorVersionsSlice(slug)
 	if err != nil {
 		return
+	}
+	if requestedMajorVersion != "" {
+		if !slices.Contains(majorVersions, requestedMajorVersion) {
+			err = ErrorInvalidSubProductMajorVersion
+			return
+		}
+		//TODO perform logic
 	}
 
 	// Iterate major product versions and extract all unique products
@@ -160,9 +168,8 @@ func duplicateNsxToNsxLe(subProductMap map[string]SubProductDetails, productCode
 	subProductMap[productCode + "_le"].DlgListByVersion[majorVersion] = dlgList
 }
 
-
-func (c *Client) GetSubProductsSlice(slug, dlgType string) (data []SubProductDetails, err error) {
-	subProductMap, err := c.GetSubProductsMap(slug, dlgType)
+func (c *Client) GetSubProductsSlice(slug, dlgType, majorVersion string) (data []SubProductDetails, err error) {
+	subProductMap, err := c.GetSubProductsMap(slug, dlgType, majorVersion)
 	if err != nil {
 		return
 	}
@@ -186,7 +193,7 @@ func (c *Client) GetSubProductsSlice(slug, dlgType string) (data []SubProductDet
 
 func (c *Client) GetSubProduct(slug, subProduct, dlgType string) (data SubProductDetails, err error) {
 	var subProductMap map[string]SubProductDetails
-	subProductMap, err = c.GetSubProductsMap(slug, dlgType)
+	subProductMap, err = c.GetSubProductsMap(slug, dlgType, "")
 	if err != nil {
 		return
 	}
@@ -202,7 +209,7 @@ func (c *Client) GetSubProduct(slug, subProduct, dlgType string) (data SubProduc
 
 func (c *Client) GetSubProductDetails(slug, subProduct, majorVersion, dlgType string) (data DlgList, err error) {
 	var subProducts map[string]SubProductDetails
-	subProducts, err = c.GetSubProductsMap(slug, dlgType)
+	subProducts, err = c.GetSubProductsMap(slug, dlgType, "")
 	if err != nil {
 		return
 	}

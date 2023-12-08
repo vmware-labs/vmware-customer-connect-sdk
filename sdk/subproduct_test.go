@@ -12,16 +12,28 @@ import (
 
 func TestGetSubProductsSlice(t *testing.T) {
 	var subProducts []SubProductDetails
-	subProducts, err = basicClient.GetSubProductsSlice("vmware_horizon", "PRODUCT_BINARY")
+	subProducts, err = basicClient.GetSubProductsSlice("vmware_horizon", "PRODUCT_BINARY", "")
 	assert.Nil(t, err)
 	assert.GreaterOrEqual(t, len(subProducts), 20, "Expected response to contain at least 20 items")
 }
 
 func TestGetSubProductsSliceDrivers(t *testing.T) {
 	var subProducts []SubProductDetails
-	subProducts, err = basicClient.GetSubProductsSlice("vmware_vsphere", "DRIVERS_TOOLS")
+	subProducts, err = basicClient.GetSubProductsSlice("vmware_vsphere", "DRIVERS_TOOLS", "")
 	assert.Nil(t, err)
-	assert.GreaterOrEqual(t, len(subProducts), 20, "Expected response to contain at least 20 items")
+	assert.GreaterOrEqual(t, len(subProducts), 200, "Expected response to contain at least 200 items")
+
+	// Ensure less results are returned after specifying majpor version
+	subProducts, err = basicClient.GetSubProductsSlice("vmware_vsphere", "DRIVERS_TOOLS", "8_0")
+	assert.Nil(t, err)
+	assert.LessOrEqual(t, len(subProducts), 400, "Expected response to contain less than 400 items")
+}
+
+func TestGetSubProductsSliceInvalidSlug(t *testing.T) {
+	var subProducts []SubProductDetails
+	subProducts, err = basicClient.GetSubProductsSlice("vsphere", "PRODUCT_BINARY", "")
+	assert.ErrorIs(t, err, ErrorInvalidSlug)
+	assert.Empty(t, subProducts, "Expected response to be empty")
 }
 
 func TestGetSubProductNsxLE(t *testing.T) {
@@ -46,23 +58,16 @@ func TestGetSubProductDriver(t *testing.T) {
 	assert.NotEmpty(t, subProduct.ProductName)
 }
 
-func TestGetSubProductsSliceInvalidSlug(t *testing.T) {
-	var subProducts []SubProductDetails
-	subProducts, err = basicClient.GetSubProductsSlice("vsphere", "PRODUCT_BINARY")
-	assert.ErrorIs(t, err, ErrorInvalidSlug)
-	assert.Empty(t, subProducts, "Expected response to be empty")
-}
-
 func TestGetSubProductsMap(t *testing.T) {
 	var subProducts map[string]SubProductDetails
-	subProducts, err = basicClient.GetSubProductsMap("vmware_vsphere", "PRODUCT_BINARY")
+	subProducts, err = basicClient.GetSubProductsMap("vmware_vsphere", "PRODUCT_BINARY", "")
 	assert.Nil(t, err)
 	assert.Contains(t, subProducts, "vmtools")
 }
 
 func TestGetSubProductsMapHorizon(t *testing.T) {
 	var subProducts map[string]SubProductDetails
-	subProducts, err = basicClient.GetSubProductsMap("vmware_horizon_clients", "PRODUCT_BINARY")
+	subProducts, err = basicClient.GetSubProductsMap("vmware_horizon_clients", "PRODUCT_BINARY", "")
 	assert.Nil(t, err)
 	assert.Contains(t, subProducts, "cart+win")
 	assert.Contains(t, subProducts, "cart+andrd_x8632")
@@ -71,7 +76,7 @@ func TestGetSubProductsMapHorizon(t *testing.T) {
 
 func TestGetSubProductsMapNsxLe(t *testing.T) {
 	var subProducts map[string]SubProductDetails
-	subProducts, err = basicClient.GetSubProductsMap("vmware_nsx", "PRODUCT_BINARY")
+	subProducts, err = basicClient.GetSubProductsMap("vmware_nsx", "PRODUCT_BINARY", "")
 	assert.Nil(t, err)
 	assert.Contains(t, subProducts, "nsx")
 	assert.Contains(t, subProducts, "nsx_le")
@@ -79,7 +84,7 @@ func TestGetSubProductsMapNsxLe(t *testing.T) {
 
 func TestGetSubProductsMapNsxTLe(t *testing.T) {
 	var subProducts map[string]SubProductDetails
-	subProducts, err = basicClient.GetSubProductsMap("vmware_nsx_t_data_center", "PRODUCT_BINARY")
+	subProducts, err = basicClient.GetSubProductsMap("vmware_nsx_t_data_center", "PRODUCT_BINARY", "")
 	assert.Nil(t, err)
 	assert.Contains(t, subProducts, "nsx-t")
 	assert.Contains(t, subProducts, "nsx-t_le")
@@ -87,7 +92,7 @@ func TestGetSubProductsMapNsxTLe(t *testing.T) {
 
 func TestGetSubProductsMapInvalidSlug(t *testing.T) {
 	var subProductMap map[string]SubProductDetails
-	subProductMap, err = basicClient.GetSubProductsMap("vsphere", "PRODUCT_BINARY")
+	subProductMap, err = basicClient.GetSubProductsMap("vsphere", "PRODUCT_BINARY", "" )
 	assert.ErrorIs(t, err, ErrorInvalidSlug)
 	assert.Empty(t, subProductMap, "Expected response to be empty")
 }
