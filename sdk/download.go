@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
+	"strings"
 )
 
 type DownloadPayload struct {
@@ -60,6 +61,11 @@ func (c *Client) GenerateDownloadPayload(slug, subProduct, version, fileName, dl
 	dlgHeader, err = c.GetDlgHeader(apiVersions.Code, productID)
 	if err != nil {
 		return
+	}
+	if dlgHeader.Dlg.Type == "OEM Addons" {
+		dlgHeader.Dlg.Type = "Drivers & Tools"
+	} else {
+		dlgHeader.Dlg.Type = strings.Replace(dlgHeader.Dlg.Type, "amp;", "",1)
 	}
 
 	var downloadDetails FoundDownload
