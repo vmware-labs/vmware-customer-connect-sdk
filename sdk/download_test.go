@@ -31,6 +31,66 @@ func TestFetchDownloadLinkVersionGlob(t *testing.T) {
 	t.Logf(fmt.Sprintf("download_details: %+v\n", authorizedDownload))
 }
 
+func TestFetchDownloadLinkVersionDrivers(t *testing.T) {
+	err = ensureLogin(t)
+	require.Nil(t, err)
+
+	var downloadPayload []DownloadPayload
+	downloadPayload, err = authenticatedClient.GenerateDownloadPayload("vmware_vsphere", "vs-mgmt-sdk80u2", "8.0U2", "VMware-vSphere-SDK-8.0.2-22394481.zip", "DRIVERS_TOOLS", true)
+	require.Nil(t, err)
+	require.NotEmpty(t, downloadPayload)
+	assert.NotEmpty(t, downloadPayload[0].ProductId, "Expected response not to be empty")
+
+	t.Logf(fmt.Sprintf("download_payload: %+v\n", downloadPayload))
+
+	var authorizedDownload AuthorizedDownload
+	authorizedDownload, _ = authenticatedClient.FetchDownloadLink(downloadPayload[0])
+	assert.Nil(t, err)
+	assert.NotEmpty(t, authorizedDownload.DownloadURL, "Expected response not to be empty")
+
+	t.Logf(fmt.Sprintf("download_details: %+v\n", authorizedDownload))
+}
+
+func TestFetchDownloadLinkVersionCustomIso(t *testing.T) {
+	err = ensureLogin(t)
+	require.Nil(t, err)
+
+	var downloadPayload []DownloadPayload
+	downloadPayload, err = authenticatedClient.GenerateDownloadPayload("vmware_vsphere", "oem-esxi80u2-hitachi", "ESXi 8.0.2", "VMware-ESXi-8.0-update2-22380479-hitachi-1301.iso", "CUSTOM_ISO", true)
+	require.Nil(t, err)
+	require.NotEmpty(t, downloadPayload)
+	assert.NotEmpty(t, downloadPayload[0].ProductId, "Expected response not to be empty")
+
+	t.Logf(fmt.Sprintf("download_payload: %+v\n", downloadPayload))
+
+	var authorizedDownload AuthorizedDownload
+	authorizedDownload, _ = authenticatedClient.FetchDownloadLink(downloadPayload[0])
+	assert.Nil(t, err)
+	assert.NotEmpty(t, authorizedDownload.DownloadURL, "Expected response not to be empty")
+
+	t.Logf(fmt.Sprintf("download_details: %+v\n", authorizedDownload))
+}
+
+func TestFetchDownloadLinkVersionAddons(t *testing.T) {
+	err = ensureLogin(t)
+	require.Nil(t, err)
+
+	var downloadPayload []DownloadPayload
+	downloadPayload, err = authenticatedClient.GenerateDownloadPayload("vmware_vsphere", "addon_esxi80u2_hitachi", "ESXi 8.0U2", "VMware-ESXi-8.0u2-addon-22380479-hitachi-1301.zip", "ADDONS", true)
+	require.Nil(t, err)
+	require.NotEmpty(t, downloadPayload)
+	assert.NotEmpty(t, downloadPayload[0].ProductId, "Expected response not to be empty")
+
+	t.Logf(fmt.Sprintf("download_payload: %+v\n", downloadPayload))
+
+	var authorizedDownload AuthorizedDownload
+	authorizedDownload, _ = authenticatedClient.FetchDownloadLink(downloadPayload[0])
+	assert.Nil(t, err)
+	assert.NotEmpty(t, authorizedDownload.DownloadURL, "Expected response not to be empty")
+
+	t.Logf(fmt.Sprintf("download_details: %+v\n", authorizedDownload))
+}
+
 func TestFetchDownloadLinkVersion(t *testing.T) {
 	err = ensureLogin(t)
 	require.Nil(t, err)
